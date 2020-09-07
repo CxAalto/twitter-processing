@@ -1,7 +1,35 @@
 # Code to extract information from raw twitter data
-
+import os, json, datetime
 
 # top level function 
+def raw2date(file, outfolder, filename):
+	"""Converts raw tweet file to separate files by date.
+	
+	Parameters
+	----------
+	file : str
+		File to be parsed into seperate files.
+	outfolder : str
+		Name of directory to save separate files.
+	filename : str
+		Base name for output files; date will be appended.
+
+	"""
+	
+	try:
+		os.mkdir(outfolder)
+	except FileExistsError:
+		pass
+	with open(file, 'r', encoding = 'utf-8') as infile:
+		for line in infile:
+			status = json.loads(line)
+			if 'created_at' in status:
+				created = status['created_at']
+				dt = datetime.datetime.strptime(created, '%a %b %d %X %z %Y').strftime('%Y%m%d')
+				out = filename + '_' + dt + '.txt'
+				with open(os.path.join(outfolder, out), 'a', encoding = 'utf-8') as outfile:
+					outfile.write(line)
+
 # arguments: 1) file location; 2) time period; 3) subsets; 4) output?
 def parse_files(directory, type, period, subset_options, output):
 
