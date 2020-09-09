@@ -87,6 +87,8 @@ def make_network(folder, **filters):
 		
 	Returns
 	-------
+	list
+		
 	
 	"""
 	
@@ -122,7 +124,7 @@ def make_network(folder, **filters):
 					pass # For now does not parse mentions
 	
 	# Removing duplicated edges (currently does not differentiate between retweets and mentions)
-	edges = [list(unique) for unique in set([tuple(edge) for edge in edges])]
+	edges = list(set(edges))
 	return(edges)
 
 folder = '/m/cs/scratch/networks/ecanet/nba/parsed'	
