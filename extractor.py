@@ -47,6 +47,7 @@ def parse_retweet(tweet, **filters):
 			if keyword.lower() in text:
 				edge = (tweet['user']['id_str'], tweet['retweeted_status']['user']['id_str'], tweet['timestamp_ms'])
 				return(edge)
+		return None
 		edge = (tweet['user']['id_str'], tweet['retweeted_status']['user']['id_str'], tweet['timestamp_ms'])
 		return(edge)
 
@@ -62,7 +63,7 @@ def update_retweet_parser(kw, sndr, rcvr, lng):
 	if lng == None:
 		parse_retweet_source = parse_retweet_source.replace('\n\t\tif tweet[\'retweeted_status\'][\'lang\'] not in filters.get(\'languages\'):\n\t\t\treturn None', '')
 	if kw == None:
-		parse_retweet_source = parse_retweet_source.replace('\n\t\tif tweet[\'retweeted_status\'][\'truncated\']:\n\t\t\ttext = tweet[\'retweeted_status\'][\'extended_tweet\'][\'full_text\'].lower()\n\t\telse:\n\t\t\ttext = tweet[\'retweeted_status\'][\'text\'].lower()\n\t\tfor keyword in filters.get(\'keywords\'):\n\t\t\tif keyword.lower() in text:\n\t\t\t\tedge = (tweet[\'user\'][\'id_str\'], tweet[\'retweeted_status\'][\'user\'][\'id_str\'], tweet[\'timestamp_ms\'])\n\t\t\t\treturn(edge)', '')
+		parse_retweet_source = parse_retweet_source.replace('\n\t\tif tweet[\'retweeted_status\'][\'truncated\']:\n\t\t\ttext = tweet[\'retweeted_status\'][\'extended_tweet\'][\'full_text\'].lower()\n\t\telse:\n\t\t\ttext = tweet[\'retweeted_status\'][\'text\'].lower()\n\t\tfor keyword in filters.get(\'keywords\'):\n\t\t\tif keyword.lower() in text:\n\t\t\t\tedge = (tweet[\'user\'][\'id_str\'], tweet[\'retweeted_status\'][\'user\'][\'id_str\'], tweet[\'timestamp_ms\'])\n\t\t\t\treturn(edge)\n\t\treturn None', '')
 	return(parse_retweet_source)
 	
 def make_network(folder, **filters):
