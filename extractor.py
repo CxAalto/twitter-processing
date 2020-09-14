@@ -54,7 +54,8 @@ def parse_retweet(tweet, **filters):
 								tweet['retweeted_status']['user']['id_str'],
 								tweet['timestamp_ms'])
 						return(edge)
-
+		else:
+				return None
 
 def update_retweet_parser(kw, sndr, rcvr, lng):
 	    """Remove filtering conditions in retweet parser; intended for internal use."""
@@ -116,6 +117,7 @@ def make_network(folder, **filters):
 				with open(os.path.join(folder, file), 'r', encoding = 'utf-8') as infile:
 						for line in infile:
 								tweet = json.loads(line)
+								parsed_rt = None
 								if filters.get('retweets'):
 										parsed_rt = parse_retweet(tweet, **filters)
 								if parsed_rt != None:
