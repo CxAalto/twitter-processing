@@ -2,7 +2,6 @@
 import os, json, datetime
 from inspect import getsource
 
-
 # top level function
 def raw2date(file, outfolder, filename):
 		"""Converts raw tweet file to separate files by date.
@@ -28,7 +27,7 @@ def raw2date(file, outfolder, filename):
 
 
 # arguments: 1) file location; 2) time period; 3) subsets; 4) output?
-def parse_retweet(tweet, **filters):
+def parse_retweet(tweet, output, **filters):
 		"""Parse twitter json for retweet data; intended for internal use."""
 		if "retweeted_status" in tweet:
 				if filters.get('senders_rt') != None and tweet['user']['id_str'] not in filters.get('senders_rt'):
@@ -44,16 +43,26 @@ def parse_retweet(tweet, **filters):
 				if filters.get('keywords') != None:
 						for keyword in filters.get('keywords'):
 								if keyword.lower() in text:
-										edge = (tweet['user']['id_str'],
-												tweet['retweeted_status']['user']['id_str'],
-												tweet['timestamp_ms'])
-										return(edge)
+										if output == "edges":
+												edge = (tweet['user']['id_str'],
+														tweet['retweeted_status']['user']['id_str'],
+														tweet['timestamp_ms'])
+												return(edge)
+										else:
+												key = (tweet['user']['id_str'],
+													   tweet['retweeted_status']['user']['id_str'])
+												return({key:{tweet}})
 						return None
 				else:
-						edge = (tweet['user']['id_str'],
-								tweet['retweeted_status']['user']['id_str'],
-								tweet['timestamp_ms'])
-						return(edge)
+						if output == "edges":
+								edge = (tweet['user']['id_str'],
+										tweet['retweeted_status']['user']['id_str'],
+										tweet['timestamp_ms'])
+								return(edge)
+						else:
+								key = (tweet['user']['id_str'],
+									   tweet['retweeted_status']['user']['id_str'])
+								return({key:tweet})
 		else:
 				return None
 
@@ -72,14 +81,14 @@ def update_retweet_parser(kw, sndr, rcvr, lng):
 	    return(parse_retweet_source)
 
 
-def make_network(folder, **filters):
+def make_network(folder, output = "edges", **filters):
 		"""Creates networks with specified filters.
 		Parameters
 		----------
 	    folder : str
 		Path containing all raw, dated files.
 	    output : str
-		Format of network. If 'edges', returns list of edges; if 'dict', returns dict object.
+		Format of network. If 'edges', returns list of edges; if 'dictionary', returns dict object.
 	    **filters :
 		dates : list of two strings with start and end dates ('%Y%m%d'); or else all files in directory.
 		retweets : logical of whether to include retweets in the network.
@@ -92,9 +101,11 @@ def make_network(folder, **filters):
 		languages : list of languages to include; or else all languages included.
 	    Returns
 		-------
-		list
+		list of edges or
+		a dict where keys are tuples of linked accounts
 		"""
 		edges = []
+		dictionary = {}
 		files = sorted([file for file in os.listdir(folder) if not file.startswith('.')])
 		# Filter by date:
 		dates = filters.get('dates')
@@ -103,7 +114,7 @@ def make_network(folder, **filters):
 				date_range = [(dates[0] + datetime.timedelta(n)).strftime('%Y%m%d') for n in range(int ((dates[1] - dates[0]).days + 1))]
 				files = [file for file in files if file[-12:-4] in date_range]
 		# Redefine retweet and mention parsers to satisfy specified filters
-		""" Remove this because of bugs that cannot be debugged
+		""" Remove this because of bugs that cannot be debugged with pdb
 		if filters.get('retweets'):
 				new_retweet_parser = update_retweet_parser(filters.get('keywords'),
 														   filters.get('senders_rt'),
@@ -119,13 +130,19 @@ def make_network(folder, **filters):
 								tweet = json.loads(line)
 								parsed_rt = None
 								if filters.get('retweets'):
-										parsed_rt = parse_retweet(tweet, **filters)
+										parsed_rt = parse_retweet(tweet, output, **filters)
 								if parsed_rt != None:
-										edges.append(parsed_rt)
+										if output == "edges":
+												edges.append(parsed_rt)
+										else:
+												dictionary.update(parsed_rt)
 								if filters.get('mentions'):
 										pass # For now does not parse mentions
-		edges = list(set(edges)) # Removing duplicated edges (currently does not differentiate between retweets and mentions)
-		return(edges)
+		if output == "edges":
+				edges = list(set(edges)) # Removing duplicated edges (currently does not differentiate between retweets and mentions)
+				return(edges)
+		else:
+				return(dictionary)
 
 
 def create_retweet_set_and_dict(dir_name,

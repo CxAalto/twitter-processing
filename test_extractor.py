@@ -36,6 +36,35 @@ class TestTwitterExtractor(unittest.TestCase):
         self.assertTrue("1599838215000" not in retweet_times,
                         "Tweet with id 1 should not be in retweets")
 
+
+    def test_retweet_dict(self):
+        # pdb.set_trace()
+        tweet_dict = extractor.make_network("test/tweets",
+                                            output="dictionary",
+                                            retweets=True,
+                                            mentions=False)
+        retweeter_ids = []
+        retweet_times =[]
+        for key in tweet_dict:
+            tweet = tweet_dict[key]
+            id_str = tweet['user']['id_str']
+            timestamp = tweet['timestamp_ms']
+            retweeter_ids.append(id_str)
+            retweet_times.append(timestamp)
+        self.assertTrue("1" in retweeter_ids,
+                         'id 1 should be in retweeters')
+        self.assertTrue("2" in retweeter_ids,
+                         'id 2 should be in retweeters')
+        self.assertTrue("4" in retweeter_ids,
+                         'id 4 should be in retweeters')
+        self.assertTrue("7" in retweeter_ids,
+                         'id 7 should be in retweeters')
+        self.assertTrue("1599845613000" in retweet_times,
+                        "Tweet with id 12 should be in retweets")
+        # the non-retweet has timestamp "1599838215000"
+        self.assertTrue("1599838215000" not in retweet_times,
+                        "Tweet with id 1 should not be in retweets")
+
     def test_retweeters(self):
         tweet_list = extractor.make_network("test/tweets",
                                             retweets=True,
