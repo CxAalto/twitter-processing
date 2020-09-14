@@ -21,7 +21,7 @@ The tested tweets may include the following fields:
 Test cases for tweets:
 | Filter to test | Resulting tweets                         | Tweet id | Retweeter id | Retweeted id | Time        |
 |----------------|------------------------------------------|----------|--------------|--------------|-------------|
-| retweeted      | should include retweets                  |        2 |            1 |            2 | Sep 11 2020 |
+| retweets       | should include retweets                  |        2 |            1 |            2 | Sep 11 2020 |
 |                |                                          |        4 |            2 |            3 | Sep 11 2020 |
 |                |                                          |        8 |            4 |            6 | Sep 11 2020 |
 |                |                                          |       10 |            7 |            8 | Sep 11 2020 |

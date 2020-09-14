@@ -107,17 +107,16 @@ class TestTwitterExtractor(unittest.TestCase):
 
     def test_dates(self):
         tweet_list = extractor.make_network("test/tweets",
-                                            retweets=False,
+                                            retweets=True,
                                             mentions=False,
                                             dates=[
-                                                "20200813",
+                                                "20190813",
                                                 "20200911"
                                             ])
         timestamps = []
         for tweet in tweet_list:
             time = tweet[2]
             timestamps.append(time)
-            print(tweet)
         self.assertTrue("1599838275000" in timestamps,
                         "Tweet with id 2 should  be included")
         self.assertTrue("1599819010000" in timestamps,
