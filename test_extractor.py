@@ -14,19 +14,20 @@ class TestTwitterExtractor(unittest.TestCase):
         #pdb.set_trace()
         tweet_list = extractor.make_network("test/tweets",
                                             retweets=True,
-                                            keywords=[
-                                                "climate",
-                                                "ilmastonmuutos"
-                                            ],
-                                           mentions=False)
+                                            mentions=False)
         print("tweet list: ", tweet_list)
         retweeter_ids = []
         for tweet in tweet_list:
             id_str = tweet[0]
-            print(id_str)
             retweeter_ids.append(id_str)
         self.assertTrue("1" in retweeter_ids,
                          'id 1 should be in retweeters')
+        self.assertTrue("2" in retweeter_ids,
+                         'id 2 should be in retweeters')
+        self.assertTrue("4" in retweeter_ids,
+                         'id 4 should be in retweeters')
+        self.assertTrue("7" in retweeter_ids,
+                         'id 7 should be in retweeters')
 
     def tearDown(self):
         shutil.rmtree("test/tweets")

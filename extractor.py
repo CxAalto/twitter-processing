@@ -41,14 +41,19 @@ def parse_retweet(tweet, **filters):
 						text = tweet['retweeted_status']['extended_tweet']['full_text'].lower()
 				else:
 						text = tweet['retweeted_status']['text'].lower()
-				for keyword in filters.get('keywords'):
-						if keyword.lower() in text:
-								edge = (tweet['user']['id_str'],
-										tweet['retweeted_status']['user']['id_str'],
-										tweet['timestamp_ms'])
-								return(edge)
-				return None
-		return None
+				if filters.get('keywords') != None:
+						for keyword in filters.get('keywords'):
+								if keyword.lower() in text:
+										edge = (tweet['user']['id_str'],
+												tweet['retweeted_status']['user']['id_str'],
+												tweet['timestamp_ms'])
+										return(edge)
+						return None
+				else:
+						edge = (tweet['user']['id_str'],
+								tweet['retweeted_status']['user']['id_str'],
+								tweet['timestamp_ms'])
+						return(edge)
 
 
 def update_retweet_parser(kw, sndr, rcvr, lng):
