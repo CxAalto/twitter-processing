@@ -26,7 +26,7 @@ Test cases for tweets:
 |                |                                          |        8 |            4 |            6 | Sep 11 2020 |
 |                |                                          |       10 |            7 |            8 | Sep 11 2020 |
 |                |                                          |       12 |            7 |            9 | Sep 11 2020 |
-| retweeted      | should not include non-retweets          |        1 |            1 |         None | Sep 11 2020 |
+| retweets       | should not include non-retweets          |        1 |            1 |         None | Sep 11 2020 |
 | retweeters     | should include given retweeters          |        2 |            1 |            2 | Sep 11 2020 |
 | retweeters     | should not include other than given      |        4 |            2 |            3 | Sep 11 2020 |
 | retweeteds     | should include given retweeteds          |        6 |            4 |            5 | Sep 11 2020 |
