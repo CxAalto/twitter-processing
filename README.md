@@ -1,7 +1,7 @@
 # twitter-processing
 Code to process and work with Twitter data.
 ## Testing
-The `test` directory includes unit tests in `test_extractor.py` and a made up Twitter data file `test_tweets.txt` for tests.
+The `test` directory includes unit tests in `test_extractor.py` and a made up Twitter data file `test_tweets_lines.txt` for tests.
 ### Test tweets
 The tested tweets may include the following fields:
 | Field                                | Type                                          | Example                          |
