@@ -43,26 +43,17 @@ def parse_retweet(tweet, output, **filters):
 				if filters.get('keywords') != None:
 						for keyword in filters.get('keywords'):
 								if keyword.lower() in text:
-										if output == "edges":
-												edge = (tweet['user']['id_str'],
-														tweet['retweeted_status']['user']['id_str'],
-														tweet['timestamp_ms'])
-												return(edge)
-										else:
-												key = (tweet['user']['id_str'],
-													   tweet['retweeted_status']['user']['id_str'])
-												return({key:{tweet}})
+										edge = (tweet['user']['id_str'],
+												tweet['retweeted_status']['user']['id_str'],
+												tweet['timestamp_ms'])
+										return(edge)
+
 						return None
 				else:
-						if output == "edges":
-								edge = (tweet['user']['id_str'],
-										tweet['retweeted_status']['user']['id_str'],
-										tweet['timestamp_ms'])
-								return(edge)
-						else:
-								key = (tweet['user']['id_str'],
-									   tweet['retweeted_status']['user']['id_str'])
-								return({key:tweet})
+						edge = (tweet['user']['id_str'],
+								tweet['retweeted_status']['user']['id_str'],
+								tweet['timestamp_ms'])
+						return(edge)
 		else:
 				return None
 
@@ -135,7 +126,8 @@ def make_network(folder, output = "edges", **filters):
 										if output == "edges":
 												edges.append(parsed_rt)
 										else:
-												dictionary.update(parsed_rt)
+												key = (parsed_rt[0], parsed_rt[1])
+												dictionary.update({key:tweet})
 								if filters.get('mentions'):
 										pass # For now does not parse mentions
 		if output == "edges":
