@@ -30,29 +30,27 @@ def raw2date(file, outfolder, filename):
 def parse_retweet(tweet, **filters):
 	"""Parse twitter json for retweet data; intended for internal use."""
 	if "retweeted_status" in tweet:
-		if filters.get('senders_rt') != None and tweet['user']['id_str'] not in filters.get('senders_rt'):
+		if tweet['user']['id_str'] not in filters.get('senders_rt'):
 			return None
-		if filters.get('receivers_rt') != None and tweet['retweeted_status']['user']['id_str'] not in filters.get('receivers_rt'):
+		if tweet['retweeted_status']['user']['id_str'] not in filters.get('receivers_rt'):
 			return None
-		if filters.get('languages') != None and tweet['retweeted_status']['lang'] not in filters.get('languages'):
+		if tweet['retweeted_status']['lang'] not in filters.get('languages'):
 			return None
 		if not tweet['retweeted_status']['truncated']:
 			text = tweet['retweeted_status']['extended_tweet']['full_text'].lower()
 		else:
 			text = tweet['retweeted_status']['text'].lower()
-		if filters.get('keywords') != None:
-			for keyword in filters.get('keywords'):
-				if keyword.lower() in text:
-					edge = (tweet['user']['id_str'],
-						tweet['retweeted_status']['user']['id_str'],
-						tweet['timestamp_ms'])
-					return(edge)
-				return None
-		else:
-			edge = (tweet['user']['id_str'],
-				tweet['retweeted_status']['user']['id_str'],
-				tweet['timestamp_ms'])
-			return(edge)
+		for keyword in filters.get('keywords'):
+			if keyword.lower() in text:
+				edge = (tweet['user']['id_str'],
+					tweet['retweeted_status']['user']['id_str'],
+					tweet['timestamp_ms'])
+				return(edge)
+		return None
+		edge = (tweet['user']['id_str'],
+			tweet['retweeted_status']['user']['id_str'],
+			tweet['timestamp_ms'])
+		return(edge)
 	else:
 		return None
 
@@ -67,7 +65,7 @@ def update_retweet_parser(kw, sndr, rcvr, lng):
 	if lng == None:
 		parse_retweet_source = parse_retweet_source.replace('\n\t\tif tweet[\'retweeted_status\'][\'lang\'] not in filters.get(\'languages\'):\n\t\t\treturn None', '')
 	if kw == None:
-		parse_retweet_source = parse_retweet_source.replace('\n\t\tif tweet[\'retweeted_status\'][\'truncated\']:\n\t\t\ttext = tweet[\'retweeted_status\'][\'extended_tweet\'][\'full_text\'].lower()\n\t\telse:\n\t\t\ttext = tweet[\'retweeted_status\'][\'text\'].lower()\n\t\tfor keyword in filters.get(\'keywords\'):\n\t\t\tif keyword.lower() in text:\n\t\t\t\tedge = (tweet[\'user\'][\'id_str\'], tweet[\'retweeted_status\'][\'user\'][\'id_str\'], tweet[\'timestamp_ms\'])\n\t\t\t\treturn(edge)\n\t\treturn None', '')
+		parse_retweet_source = parse_retweet_source.replace('\n\t\tif not tweet[\'retweeted_status\'][\'truncated\']:\n\t\t\ttext = tweet[\'retweeted_status\'][\'extended_tweet\'][\'full_text\'].lower()\n\t\telse:\n\t\t\ttext = tweet[\'retweeted_status\'][\'text\'].lower()\n\t\tfor keyword in filters.get(\'keywords\'):\n\t\t\tif keyword.lower() in text:\n\t\t\t\tedge = (tweet[\'user\'][\'id_str\'],\n\t\t\t\t\ttweet[\'retweeted_status\'][\'user\'][\'id_str\'],\n\t\t\t\t\ttweet[\'timestamp_ms\'])\n\t\t\t\treturn(edge)\n\t\treturn None', '')
 	return(parse_retweet_source)
 
 
@@ -104,14 +102,12 @@ def make_network(folder, output = "edges", **filters):
 		date_range = [(dates[0] + datetime.timedelta(n)).strftime('%Y%m%d') for n in range(int ((dates[1] - dates[0]).days + 1))]
 		files = [file for file in files if file[-12:-4] in date_range]
 	# Redefine retweet and mention parsers to satisfy specified filters
-	""" Remove this because of bugs that cannot be debugged with pdb
 	if filters.get('retweets'):
-	new_retweet_parser = update_retweet_parser(filters.get('keywords'),
-						filters.get('senders_rt'),
-						filters.get('receivers_rt'),
-						filters.get('languages'))
+		new_retweet_parser = update_retweet_parser(filters.get('keywords'),
+								filters.get('senders_rt'),
+								filters.get('receivers_rt'),
+								filters.get('languages'))
 		exec(new_retweet_parser, globals())
-	"""
 	if filters.get('mentions'):
 		pass
 	for file in files:
@@ -120,7 +116,7 @@ def make_network(folder, output = "edges", **filters):
 				tweet = json.loads(line)
 				parsed_rt = None
 				if filters.get('retweets'):
-					parsed_rt = parse_retweet(tweet, **filters)
+					parsed_rt = parse_retweet_conditions(tweet, **filters)
 					if parsed_rt != None:
 						if output == "edges":
 							edges.append(parsed_rt)
