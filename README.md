@@ -46,5 +46,6 @@ Test cases for tweets:
 |                |                                          |       12 |            7 |           11 | Sep 11 2020 |
 |                |                                          |       13 |           12 |           13 | Aug 14 2019 |
 | dates          | should not be outside the date range     |       15 |           14 |           15 | Aug 11 2019 |
+| truncated      | include without 'truncated' field        |       17 |           16 |           17 | Sep 11 2020 |
 | list           | in a list format                         |          |              |              |             |
 | dict           | in a dictionary format                   |          |              |              |             |

@@ -10,6 +10,7 @@ class TestTwitterExtractor(unittest.TestCase):
                            "test/tweets",
                            "test_tweet")
 
+
     def test_retweets(self):
         #pdb.set_trace()  # for debugging
         tweet_list = extractor.make_network("test/tweets",
@@ -161,8 +162,47 @@ class TestTwitterExtractor(unittest.TestCase):
         self.assertTrue("1565544813000" not in timestamps,
                         "Tweet with id 15 should not be included")
 
+    def test_no_truncated_field(self):
+        tweet_list = extractor.make_network("test/tweets",
+                                            retweets=True,
+                                            mentions=False)
+        retweeter_ids = []
+        for tweet in tweet_list:
+            id_str = tweet[0]
+            retweeter_ids.append(id_str)
+        self.assertTrue("16" in retweeter_ids,
+                        "Retweeter with id 16 should be included")
+
+
+    def test_no_truncated_with_keyword(self):
+        tweet_list = extractor.make_network("test/tweets",
+                                            retweets=True,
+                                            mentions=False,
+                                            keywords=["field"])
+        retweeter_ids = []
+        for tweet in tweet_list:
+            id_str = tweet[0]
+            retweeter_ids.append(id_str)
+        self.assertTrue("16" in retweeter_ids,
+                        "Retweeter with id 16 should be included with keyword")
+
+    def test_no_truncated_with_keyword_oneline_file(self):
+        tweet_list = extractor.make_network("test/one_liners",
+                                            tweet_per_line=False,
+                                            retweets=True,
+                                            mentions=False,
+                                            keywords=["field"],
+                                            )
+        retweeter_ids = []
+        for tweet in tweet_list:
+            id_str = tweet[0]
+            retweeter_ids.append(id_str)
+        self.assertTrue("16" in retweeter_ids,
+                        "Retweeter with id 16 should be included with keyword")
+
     def tearDown(self):
         shutil.rmtree("test/tweets")
+
 
 if __name__ == '__main__':
     unittest.main()
