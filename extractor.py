@@ -130,8 +130,7 @@ def make_network(folder,
 			if output == "edges":
 				edges.append(parsed_rt)
 			else:
-				key = (parsed_rt[0], parsed_rt[1])
-				dictionary.update({key:tweet})
+				dictionary.update({parsed_rt:tweet})
 	for file in files:
 		with open(os.path.join(folder, file), 'r', encoding = 'utf-8') as infile:
 			for line in infile:
