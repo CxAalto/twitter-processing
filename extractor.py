@@ -74,8 +74,7 @@ def update_retweet_parser(kw, sndr, rcvr, lng):
 
 def make_network(folder,
 		 output="edges",
-		 tweet_per_line=False,
-		 no_truncated_tweets=False,
+		 tweet_per_line=True,
 		 **filters):
 	"""Creates networks with specified filters.
 	Parameters
@@ -142,7 +141,7 @@ def make_network(folder,
 						filter_tweet_to_collection(contents, **filters)
 					else:
 						for tweet_json in contents:
-							filter_tweet_to_collection(contents, **filters)
+							filter_tweet_to_collection(tweet_json, **filters)
 				if filters.get('mentions'):
 					pass # For now does not parse mentions
 	if output == "edges":
