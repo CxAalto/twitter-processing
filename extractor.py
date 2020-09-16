@@ -8,11 +8,12 @@ def raw2date(file, outfolder, filename):
 	Parameters
 	----------
 	file : str
-	File to be parsed into seperate files.
+		File to be parsed into seperate files.
 	outfolder : str
-	Name of directory to save separate files.
+		Name of directory to save separate files.
 	filename : str
-	Base name for output files; date will be appended.
+		Base name for output files; date will be appended.
+	Handles only files where each Tweet JSON in in their own one line.
 	"""
 	os.makedirs(outfolder, exist_ok = True)
 	with open(file, 'r') as infile:
