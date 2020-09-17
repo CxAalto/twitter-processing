@@ -28,6 +28,7 @@ def raw2date(file, outfolder, filename):
 
 
 # arguments: 1) file location; 2) time period; 3) subsets; 4) output?
+
 def parse_retweet(tweet, **filters):
 	"""Parse twitter json for retweet data; intended for internal use."""
 	if "retweeted_status" in tweet:
@@ -57,15 +58,20 @@ def parse_retweet(tweet, **filters):
 	else:
 		return None
 
-def update_retweet_parser(kw, sndr, rcvr, lng):
+def update_retweet_parser(kw, sndr, rcvr, union_rt, lng):
 	"""Remove filtering conditions in retweet parser; intended for
 	internal use."""
 	parse_retweet_source = getsource(parse_retweet)
 	parse_retweet_source = parse_retweet_source.replace('def parse_retweet(', 'def parse_retweet_conditions(')
-	if sndr == None:
+	if sndr == None and (union_rt == None or union_rt == False):
 		parse_retweet_source = parse_retweet_source.replace('\n\t\tif tweet[\'user\'][\'id_str\'] not in filters.get(\'senders_rt\'):\n\t\t\treturn None', '')
-	if rcvr == None:
+	if rcvr == None and (union_rt == None or union_rt == False):
 		parse_retweet_source = parse_retweet_source.replace('\n\t\tif tweet[\'retweeted_status\'][\'user\'][\'id_str\'] not \\\n\t\t   in filters.get(\'receivers_rt\'):\n\t\t\treturn None', '')
+	if union_rt == True and (rcvr == None or sndr == None):
+		parse_retweet_source = parse_retweet_source.replace('\n\t\tif tweet[\'retweeted_status\'][\'user\'][\'id_str\'] not \\\n\t\t   in filters.get(\'receivers_rt\'):\n\t\t\treturn None', '')
+		parse_retweet_source = parse_retweet_source.replace('\n\t\tif tweet[\'user\'][\'id_str\'] not in filters.get(\'senders_rt\'):\n\t\t\treturn None', '')
+	if union_rt == True and (rcvr != None or sndr != None):
+		parse_retweet_source = parse_retweet_source.replace('\n\t\tif tweet[\'user\'][\'id_str\'] not in filters.get(\'senders_rt\'):\n\t\t\treturn None\n\t\tif tweet[\'retweeted_status\'][\'user\'][\'id_str\'] not \\\n\t\t   in filters.get(\'receivers_rt\'):\n\t\t\treturn None', '\n\t\tif tweet[\'user\'][\'id_str\'] not in filters.get(\'senders_rt\') and tweet[\'retweeted_status\'][\'user\'][\'id_str\'] not in filters.get(\'receivers_rt\'):\n\t\t\treturn None')
 	if lng == None:
 		parse_retweet_source = parse_retweet_source.replace('\n\t\tif tweet[\'retweeted_status\'][\'lang\'] not in filters.get(\'languages\'):\n\t\t\treturn None', '')
 	if kw == None:
@@ -87,7 +93,6 @@ def make_network(folder,
 		returns dict object.
 	tweet_per_line : logical of whether there is one tweet (JSON object) per
 		line.
-	no_truncated_tweets: logical of whether there is a key 'truncated' in JSON
 	**filters :
 	dates : list of two strings with start and end dates ('%Y%m%d'); or else
 		all files in directory.
@@ -96,6 +101,8 @@ def make_network(folder,
 	keywords : list of all substrings to be matched; or else no filtering.
 	senders_rt : list of retweeting accounts; or else all accounts included.
 	receivers_rt : list of retweeted accounts; or else all accounts included.
+	union_rt : logical of whether senders_rt and receivers_rt form a union or
+		an intersection (i.e. are both required for an edge or only one)
 	senders_at : list of mentioning accounts; or else all accounts included.
 	receivers_at : list of all mentioned accounts; or else all accounts
 		included.
@@ -119,6 +126,7 @@ def make_network(folder,
 		new_retweet_parser = update_retweet_parser(filters.get('keywords'),
 								filters.get('senders_rt'),
 								filters.get('receivers_rt'),
+								filters.get('union_rt'),
 								filters.get('languages')
 							)
 		exec(new_retweet_parser, globals())
@@ -130,8 +138,7 @@ def make_network(folder,
 			if output == "edges":
 				edges.append(parsed_rt)
 			else:
-				key = (parsed_rt[0], parsed_rt[1])
-				dictionary.update({key:tweet})
+				dictionary.update({parsed_rt:tweet})
 	for file in files:
 		with open(os.path.join(folder, file), 'r', encoding = 'utf-8') as infile:
 			for line in infile:
