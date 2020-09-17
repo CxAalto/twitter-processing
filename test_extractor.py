@@ -191,7 +191,7 @@ class TestTwitterExtractor(unittest.TestCase):
                                             tweet_per_line=False,
                                             retweets=True,
                                             mentions=False,
-                                            keywords=["field"],
+                                            keywords=["field"]
                                             )
         retweeter_ids = []
         for tweet in tweet_list:
@@ -199,6 +199,27 @@ class TestTwitterExtractor(unittest.TestCase):
             retweeter_ids.append(id_str)
         self.assertTrue("16" in retweeter_ids,
                         "Retweeter with id 16 should be included with keyword")
+
+    def test_union_of_retweeters(self):
+        tweet_list = extractor.make_network("test/one_liners",
+                                            tweet_per_line=False,
+                                            retweets=True,
+                                            mentions=False,
+                                            senders_rt=["2"],
+                                            receivers_rt=["2"],
+                                            union_rt=True
+                                            )
+        retweeter_ids = []
+        retweeted_ids = []
+        for tweet in tweet_list:
+            retweeter = tweet[0]
+            retweeted = tweet[1]
+            retweeter_ids.append(retweeter)
+            retweeted_ids.append(retweeted)
+        self.assertTrue("2" in retweeter_ids,
+                        "Retweeter with id 2 should be included")
+        self.assertTrue("2" in retweeted_ids,
+                        "Retweeted with id 2 should be included")
 
     def tearDown(self):
         shutil.rmtree("test/tweets")

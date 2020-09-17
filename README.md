@@ -47,5 +47,8 @@ Test cases for tweets:
 |                |                                          |       13 |           12 |           13 | Aug 14 2019 |
 | dates          | should not be outside the date range     |       15 |           14 |           15 | Aug 11 2019 |
 | truncated      | include without 'truncated' field        |       17 |           16 |           17 | Sep 11 2020 |
+| oneline files  | deal with files where all is in one line |          |              |              |             |
+| unions         | tweeter or tweeted should be a given     |        2 |            1 |            2 | Sep 11 2020 |
+|                |                                          |        4 |            2 |            3 | Sep 11 2020 |
 | list           | in a list format                         |          |              |              |             |
 | dict           | in a dictionary format                   |          |              |              |             |
