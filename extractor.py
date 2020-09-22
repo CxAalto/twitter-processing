@@ -32,10 +32,15 @@ def raw2date(file, outfolder, filename):
 def parse_retweet(tweet, **filters):
 	"""Parse twitter json for retweet data; intended for internal use."""
 	if "retweeted_status" in tweet:
-		if tweet['user']['id_str'] not in filters.get('senders_rt'):
+		retweeter = tweet.get('user').get('id_str')
+		if retweeter == None:
+			retweeter = str(tweet.get('user').get('id'))
+		if retweeter not in filters.get('senders_rt'):
 			return None
-		if tweet['retweeted_status']['user']['id_str'] not \
-		   in filters.get('receivers_rt'):
+		retweeted = tweet.get('retweeted_status').get('user').get('id_str')
+		if retweeted == None:
+			retweeted = str(tweet.get('retweeted_status').get('user').get('id'))
+		if retweeted not in filters.get('receivers_rt'):
 			return None
 		if tweet['retweeted_status']['lang'] not in filters.get('languages'):
 			return None
@@ -46,31 +51,46 @@ def parse_retweet(tweet, **filters):
 			text = tweet['retweeted_status']['text'].lower()
 		for keyword in filters.get('keywords'):
 			if keyword.lower() in text:
-				edge = (tweet['user']['id_str'],
-					tweet['retweeted_status']['user']['id_str'],
+				retweeter = tweet.get('user').get('id_str')
+				if retweeter == None:
+					retweeter = str(tweet.get('user').get('id'))
+				retweeted = tweet.get('retweeted_status').get('user').get('id_str')
+				if retweeted == None:
+					retweeted = str(tweet.get('retweeted_status').get('user').get('id'))
+				edge = (retweeter,
+					retweeted,
 					tweet['timestamp_ms'])
 				return(edge)
 		return None
-		edge = (tweet['user']['id_str'],
-			tweet['retweeted_status']['user']['id_str'],
+		retweeter = tweet.get('user').get('id_str')
+		if retweeter == None:
+			retweeter = str(tweet.get('user').get('id'))
+		retweeted = tweet.get('retweeted_status').get('user').get('id_str')
+		if retweeted == None:
+			retweeted = str(tweet.get('retweeted_status').get('user').get('id'))
+		edge = (retweeter,
+			retweeted,
 			tweet['timestamp_ms'])
 		return(edge)
 	else:
 		return None
+
 
 def update_retweet_parser(kw, sndr, rcvr, union_rt, lng):
 	"""Remove filtering conditions in retweet parser; intended for
 	internal use."""
 	parse_retweet_source = getsource(parse_retweet)
 	parse_retweet_source = parse_retweet_source.replace('def parse_retweet(', 'def parse_retweet_conditions(')
-	if sndr == None and (union_rt == None or union_rt == False):
-		parse_retweet_source = parse_retweet_source.replace('\n\t\tif tweet[\'user\'][\'id_str\'] not in filters.get(\'senders_rt\'):\n\t\t\treturn None', '')
-	if rcvr == None and (union_rt == None or union_rt == False):
-		parse_retweet_source = parse_retweet_source.replace('\n\t\tif tweet[\'retweeted_status\'][\'user\'][\'id_str\'] not \\\n\t\t   in filters.get(\'receivers_rt\'):\n\t\t\treturn None', '')
-	if union_rt == True and (rcvr == None or sndr == None):
-		parse_retweet_source = parse_retweet_source.replace('\n\t\tif tweet[\'retweeted_status\'][\'user\'][\'id_str\'] not \\\n\t\t   in filters.get(\'receivers_rt\'):\n\t\t\treturn None', '')
-		parse_retweet_source = parse_retweet_source.replace('\n\t\tif tweet[\'user\'][\'id_str\'] not in filters.get(\'senders_rt\'):\n\t\t\treturn None', '')
-	if union_rt == True and (rcvr != None or sndr != None):
+	if (sndr == None or sndr==[]) and (union_rt == None or union_rt == False):
+		parse_retweet_source = parse_retweet_source.replace('\n\t\tretweeter = tweet.get(\'user\').get(\'id_str\')\n\t\tif retweeter == None:\n\t\t\tretweeter = str(tweet.get(\'user\').get(\'id\'))if retweeter not in filters.get(\'senders_rt\'):\n\t\t\treturn None', '')
+	if (rcvr == None or rcvr==[]) and (union_rt == None or union_rt == False):
+		parse_retweet_source = parse_retweet_source.replace('\n\t\tretweeted = tweet.get(\'retweeted_status\').get(\'user\').get(\'id_str\')\n\t\tifretweeted == None:\n\t\t\tretweeted = str(tweet.get(\'retweeted_status\').get(\'user\').get(\'id\'))\n\t\tif retweeted not in filters.get(\'receivers_rt\'):\n\t\t\treturn None', '')
+	if union_rt == True and ((rcvr == None or rcvr == []) and (sndr == None or sndr == [])):
+		parse_retweet_source = parse_retweet_source.replace('\n\t\tretweeter = tweet.get(\'user\').get(\'id_str\')\n\t\tif retweeter == None:\n\t\t\tretweeter = str(tweet.get(\'user\').get(\'id\'))if retweeter not in filters.get(\'senders_rt\'):\n\t\t\treturn None', '')
+		parse_retweet_source = parse_retweet_source.replace('\n\t\tretweeted = tweet.get(\'retweeted_status\').get(\'user\').get(\'id_str\')\n\t\tifretweeted == None:\n\t\t\tretweeted = str(tweet.get(\'retweeted_status\').get(\'user\').get(\'id\'))\n\t\tif retweeted not in filters.get(\'receivers_rt\'):\n\t\t\treturn None', '')
+	if union_rt == True and ((rcvr != None and rcvr != []) and (sndr == None or sndr == [])):
+		parse_retweet_source = parse_retweet_source.replace('\n\t\tretweeter = tweet.get(\'user\').get(\'id_str\')\n\t\tif retweeter == None:\n\t\t\tretweeter = str(tweet.get(\'user\').get(\'id\'))if retweeter not in filters.get(\'senders_rt\'):\n\t\t\treturn None', '')
+	if union_rt == True and ((rcvr != None and rcvr != []) or (sndr != None and sndr != [])):
 		parse_retweet_source = parse_retweet_source.replace('\n\t\tif tweet[\'user\'][\'id_str\'] not in filters.get(\'senders_rt\'):\n\t\t\treturn None\n\t\tif tweet[\'retweeted_status\'][\'user\'][\'id_str\'] not \\\n\t\t   in filters.get(\'receivers_rt\'):\n\t\t\treturn None', '\n\t\tif tweet[\'user\'][\'id_str\'] not in filters.get(\'senders_rt\') and tweet[\'retweeted_status\'][\'user\'][\'id_str\'] not in filters.get(\'receivers_rt\'):\n\t\t\treturn None')
 	if lng == None:
 		parse_retweet_source = parse_retweet_source.replace('\n\t\tif tweet[\'retweeted_status\'][\'lang\'] not in filters.get(\'languages\'):\n\t\t\treturn None', '')
@@ -117,7 +137,7 @@ def make_network(folder,
 	files = sorted([file for file in os.listdir(folder) if not file.startswith('.')])
 	# Filter by date:
 	dates = filters.get('dates')
-	if dates != None:
+	if dates != None and dates != []:
 		dates = [datetime.datetime.strptime(date, '%Y%m%d') for date in dates]
 		date_range = [(dates[0] + datetime.timedelta(n)).strftime('%Y%m%d') for n in range(int ((dates[1] - dates[0]).days + 1))]
 		files = [file for file in files if file[-12:-4] in date_range]
