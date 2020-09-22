@@ -6,6 +6,7 @@ import pdb
 class TestTwitterExtractor(unittest.TestCase):
 
     def setUp(self):
+        #pdb.set_trace()  # for debugging
         extractor.raw2date("test/test_tweet_lines.txt",
                            "test/tweets",
                            "test_tweet")
@@ -39,7 +40,6 @@ class TestTwitterExtractor(unittest.TestCase):
 
 
     def test_retweet_dict(self):
-        # pdb.set_trace()
         tweet_dict = extractor.make_network("test/tweets",
                                             output="dictionary",
                                             retweets=True,
@@ -201,10 +201,10 @@ class TestTwitterExtractor(unittest.TestCase):
                         "Retweeter with id 16 should be included with keyword")
 
     def test_union_of_retweeters(self):
+        #pdb.set_trace()
         tweet_list = extractor.make_network("test/one_liners",
                                             tweet_per_line=False,
                                             retweets=True,
-                                            mentions=False,
                                             senders_rt=["2"],
                                             receivers_rt=["2"],
                                             union_rt=True
@@ -227,4 +227,3 @@ class TestTwitterExtractor(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

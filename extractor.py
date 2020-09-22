@@ -82,19 +82,19 @@ def update_retweet_parser(kw, sndr, rcvr, union_rt, lng):
 	parse_retweet_source = getsource(parse_retweet)
 	parse_retweet_source = parse_retweet_source.replace('def parse_retweet(', 'def parse_retweet_conditions(')
 	if (sndr == None or sndr==[]) and (union_rt == None or union_rt == False):
-		parse_retweet_source = parse_retweet_source.replace('\n\t\tretweeter = tweet.get(\'user\').get(\'id_str\')\n\t\tif retweeter == None:\n\t\t\tretweeter = str(tweet.get(\'user\').get(\'id\'))if retweeter not in filters.get(\'senders_rt\'):\n\t\t\treturn None', '')
-	if (rcvr == None or rcvr==[]) and (union_rt == None or union_rt == False):
-		parse_retweet_source = parse_retweet_source.replace('\n\t\tretweeted = tweet.get(\'retweeted_status\').get(\'user\').get(\'id_str\')\n\t\tifretweeted == None:\n\t\t\tretweeted = str(tweet.get(\'retweeted_status\').get(\'user\').get(\'id\'))\n\t\tif retweeted not in filters.get(\'receivers_rt\'):\n\t\t\treturn None', '')
+		parse_retweet_source = parse_retweet_source.replace('\n\t\tretweeter = tweet.get(\'user\').get(\'id_str\')\n\t\tif retweeter == None:\n\t\t\tretweeter = str(tweet.get(\'user\').get(\'id\'))\n\t\tif retweeter not in filters.get(\'senders_rt\'):\n\t\t\treturn None', '')
+	if (rcvr == None or rcvr == []) and (union_rt == None or union_rt == False):
+		parse_retweet_source = parse_retweet_source.replace('\n\t\tretweeted = tweet.get(\'retweeted_status\').get(\'user\').get(\'id_str\')\n\t\tif retweeted == None:\n\t\t\tretweeted = str(tweet.get(\'retweeted_status\').get(\'user\').get(\'id\'))\n\t\tif retweeted not in filters.get(\'receivers_rt\'):\n\t\t\treturn None', '')
 	# When union is of sets where senders or receivers include everybody, remove both filters
 	if union_rt == True and (rcvr == None or rcvr == [] or sndr == None or sndr == []):
-		parse_retweet_source = parse_retweet_source.replace('\n\t\tretweeter = tweet.get(\'user\').get(\'id_str\')\n\t\tif retweeter == None:\n\t\t\tretweeter = str(tweet.get(\'user\').get(\'id\'))if retweeter not in filters.get(\'senders_rt\'):\n\t\t\treturn None', '')
-		parse_retweet_source = parse_retweet_source.replace('\n\t\tretweeted = tweet.get(\'retweeted_status\').get(\'user\').get(\'id_str\')\n\t\tifretweeted == None:\n\t\t\tretweeted = str(tweet.get(\'retweeted_status\').get(\'user\').get(\'id\'))\n\t\tif retweeted not in filters.get(\'receivers_rt\'):\n\t\t\treturn None', '')
+		parse_retweet_source = parse_retweet_source.replace('\n\t\tretweeter = tweet.get(\'user\').get(\'id_str\')\n\t\tif retweeter == None:\n\t\t\tretweeter = str(tweet.get(\'user\').get(\'id\'))\n\t\tif retweeter not in filters.get(\'senders_rt\'):\n\t\t\treturn None', '')
+		parse_retweet_source = parse_retweet_source.replace('\n\t\tretweeted = tweet.get(\'retweeted_status\').get(\'user\').get(\'id_str\')\n\t\tif retweeted == None:\n\t\t\tretweeted = str(tweet.get(\'retweeted_status\').get(\'user\').get(\'id\'))\n\t\tif retweeted not in filters.get(\'receivers_rt\'):\n\t\t\treturn None', '')
 	if union_rt == True and rcvr != None and rcvr != [] and sndr != None and sndr != []:
-		parse_retweet_source = parse_retweet_source.replace('\n\t\tretweeter = tweet.get(\'user\').get(\'id_str\')\n\t\tif retweeter == None:\n\t\t\tretweeter = str(tweet.get(\'user\').get(\'id\'))if retweeter not in filters.get(\'senders_rt\'):\n\t\t\treturn None\n\t\tretweeted = tweet.get(\'retweeted_status\').get(\'user\').get(\'id_str\')\n\t\tifretweeted == None:\n\t\t\tretweeted = str(tweet.get(\'retweeted_status\').get(\'user\').get(\'id\'))\n\t\tif retweeted not in filters.get(\'receivers_rt\'):\n\t\t\treturn None', '\n\t\tretweeter = tweet.get(\'user\').get(\'id_str\')\n\t\tif retweeter == None:\n\t\t\tretweeter = str(tweet.get(\'user\').get(\'id\'))\n\t\tretweeted = tweet.get(\'retweeted_status\').get(\'user\').get(\'id_str\')\n\t\tif retweeted == None:\n\t\t\tretweeted = str(tweet.get(\'retweeted_status\').get(\'user\').get(\'id\'))\n\t\tif retweeter not in filters.get(\'senders_rt\') and retweeted not in filters.get(\'receivers_rt\'):\n\t\t\treturn None\n')
+		parse_retweet_source = parse_retweet_source.replace('\n\t\tretweeter = tweet.get(\'user\').get(\'id_str\')\n\t\tif retweeter == None:\n\t\t\tretweeter = str(tweet.get(\'user\').get(\'id\'))\n\t\tif retweeter not in filters.get(\'senders_rt\'):\n\t\t\treturn None\n\t\tretweeted = tweet.get(\'retweeted_status\').get(\'user\').get(\'id_str\')\n\t\tif retweeted == None:\n\t\t\tretweeted = str(tweet.get(\'retweeted_status\').get(\'user\').get(\'id\'))\n\t\tif retweeted not in filters.get(\'receivers_rt\'):\n\t\t\treturn None', '\n\t\tretweeter = tweet.get(\'user\').get(\'id_str\')\n\t\tif retweeter == None:\n\t\t\tretweeter = str(tweet.get(\'user\').get(\'id\'))\n\t\tretweeted = tweet.get(\'retweeted_status\').get(\'user\').get(\'id_str\')\n\t\tif retweeted == None:\n\t\t\tretweeted = str(tweet.get(\'retweeted_status\').get(\'user\').get(\'id\'))\n\t\tif retweeter not in filters.get(\'senders_rt\') and retweeted not in filters.get(\'receivers_rt\'):\n\t\t\treturn None')
 	if lng == None:
 		parse_retweet_source = parse_retweet_source.replace('\n\t\tif tweet[\'retweeted_status\'][\'lang\'] not in filters.get(\'languages\'):\n\t\t\treturn None', '')
 	if kw == None:
-		parse_retweet_source = parse_retweet_source.replace('\n\t\tif \'truncated\' in tweet[\'retweeted_status\'] and \\\n\t\t   not tweet[\'retweeted_status\'][\'truncated\']:\n\t\t\ttext = tweet[\'retweeted_status\'][\'extended_tweet\'][\'full_text\'].lower()\n\t\telse:\n\t\t\ttext = tweet[\'retweeted_status\'][\'text\'].lower()\n\t\tfor keyword in filters.get(\'keywords\'):\n\t\t\tif keyword.lower() in text:\n\t\t\t\tedge = (tweet[\'user\'][\'id_str\'],\n\t\t\t\t\ttweet[\'retweeted_status\'][\'user\'][\'id_str\'],\n\t\t\t\t\ttweet[\'timestamp_ms\'])\n\t\t\t\treturn(edge)\n\t\treturn None', '')
+		parse_retweet_source = parse_retweet_source.replace('\n\t\tif \'truncated\' in tweet[\'retweeted_status\'] and \\\n\t\t   not tweet[\'retweeted_status\'][\'truncated\']:\n\t\t\ttext = tweet[\'retweeted_status\'][\'extended_tweet\'][\'full_text\'].lower()\n\t\telse:\n\t\t\ttext = tweet[\'retweeted_status\'][\'text\'].lower()\n\t\tfor keyword in filters.get(\'keywords\'):\n\t\t\tif keyword.lower() in text:\n\t\t\t\tretweeter = tweet.get(\'user\').get(\'id_str\')\n\t\t\t\tif retweeter == None:\n\t\t\t\t\tretweeter = str(tweet.get(\'user\').get(\'id\'))\n\t\t\t\tretweeted = tweet.get(\'retweeted_status\').get(\'user\').get(\'id_str\')\n\t\t\t\tif retweeted == None:\n\t\t\t\t\tretweeted = str(tweet.get(\'retweeted_status\').get(\'user\').get(\'id\'))\n\t\t\t\tedge = (retweeter,\n\t\t\t\t\tretweeted,\n\t\t\t\t\ttweet[\'timestamp_ms\'])\n\t\t\t\treturn(edge)\n\t\treturn None', '')
 	return(parse_retweet_source)
 
 
@@ -146,8 +146,7 @@ def make_network(folder,
 								filters.get('senders_rt'),
 								filters.get('receivers_rt'),
 								filters.get('union_rt'),
-								filters.get('languages')
-							)
+								filters.get('languages'))
 		exec(new_retweet_parser, globals())
 	if filters.get('mentions'):
 		pass
