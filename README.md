@@ -39,6 +39,9 @@ Test cases for tweets:
 |                |                                          |       10 |            7 |            8 | Sep 11 2020 |
 |                |                                          |       12 |            7 |           11 | Sep 11 2020 |
 | keywords       | should not have ones without given words |        4 |            2 |            3 | Sep 11 2020 |
+| hashtags       | should include tweets with hashtags      |        2 |            1 |            2 | Sep 11 2020 |
+|                |                                          |       19 |           18 |           19 | Sep 12 2020 |
+| hashtags       | should not include tweets without        |        6 |            4 |            5 | Sep 11 2020 |
 | dates          | should be inside the date range          |        2 |            1 |            2 | Sep 11 2020 |
 |                |                                          |        6 |            4 |            7 | Sep 11 2020 |
 |                |                                          |        8 |            4 |            6 | Sep 11 2020 |

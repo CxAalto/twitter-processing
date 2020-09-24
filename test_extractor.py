@@ -221,6 +221,28 @@ class TestTwitterExtractor(unittest.TestCase):
         self.assertTrue("2" in retweeted_ids,
                         "Retweeted with id 2 should be included")
 
+
+    def test_hashtags(self):
+        tweet_list = extractor.make_network("test/tweets",
+                                            tweet_per_line=True,
+                                            retweets=True,
+                                            hashtags=['climate',
+                                                      'warming']
+                                            )
+        retweeter_ids = []
+        retweeted_ids = []
+        for tweet in tweet_list:
+            retweeter = tweet[0]
+            retweeted = tweet[1]
+            retweeter_ids.append(retweeter)
+            retweeted_ids.append(retweeted)
+        self.assertTrue("1" in retweeter_ids,
+                        "Retweeter with id 1 should be included")
+        self.assertTrue("5" not in retweeted_ids,
+                        "Retweeted with id 5 should not be included")
+        self.assertTrue("19" in retweeted_ids,
+                        "Retweeted with id 19 should be included")
+
     def tearDown(self):
         shutil.rmtree("test/tweets")
 

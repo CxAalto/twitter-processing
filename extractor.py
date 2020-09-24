@@ -65,6 +65,35 @@ def parse_retweet(tweet, **filters):
 					timestamp)
 				return(edge)
 		return None
+		tags = tweet.get('retweeted_status').get('hashtags')
+		if tags == []:
+			return None
+		if tags == None and tweet.get('retweeted_status').get('entities') != None:
+			tag_objects = tweet.get('retweeted_status').get('entities').get('hashtags')
+			if tag_objects == None or tag_objects == []:
+				return None
+			else:
+				tags = []
+				for tag in tag_objects:
+					tags.append(tag.get('text'))
+		if tags == None and tweet.get('retweeted_status').get('entities') == None:
+			return None
+		for hashtag in filters.get('hashtags'):
+			if hashtag in tags:
+				retweeter = tweet.get('user').get('id_srt')
+				if retweeter == None:
+					retweeter = str(tweet.get('user').get('id'))
+				retweeted = tweet.get('retweeted_status').get('user').get('id_str')
+				if retweeted == None:
+					retweeted = str(tweet.get('retweeted_status').get('user').get('id'))
+				timestamp = tweet.get('timestamp_ms')
+				if timestamp == None:
+					timestamp = tweet.get('timestamp')
+				edge = (retweeter,
+					retweeted,
+					timestamp)
+				return(edge)
+		return None
 		retweeter = tweet.get('user').get('id_str')
 		if retweeter == None:
 			retweeter = str(tweet.get('user').get('id'))
@@ -82,7 +111,7 @@ def parse_retweet(tweet, **filters):
 		return None
 
 
-def update_retweet_parser(kw, sndr, rcvr, union_rt, lng):
+def update_retweet_parser(kw, sndr, rcvr, union_rt, lng, hashtags):
 	"""Remove filtering conditions in retweet parser; intended for
 	internal use."""
 	parse_retweet_source = getsource(parse_retweet)
@@ -101,6 +130,8 @@ def update_retweet_parser(kw, sndr, rcvr, union_rt, lng):
 		parse_retweet_source = parse_retweet_source.replace('\n\t\tif tweet[\'retweeted_status\'][\'lang\'] not in filters.get(\'languages\'):\n\t\t\treturn None', '')
 	if kw == None or kw == []:
 		parse_retweet_source = parse_retweet_source.replace('\n\t\tif \'truncated\' in tweet[\'retweeted_status\'] and \\\n\t\t   not tweet[\'retweeted_status\'][\'truncated\']:\n\t\t\ttext = tweet[\'retweeted_status\'][\'extended_tweet\'][\'full_text\'].lower()\n\t\telse:\n\t\t\ttext = tweet[\'retweeted_status\'][\'text\'].lower()\n\t\tfor keyword in filters.get(\'keywords\'):\n\t\t\tif keyword.lower() in text:\n\t\t\t\tretweeter = tweet.get(\'user\').get(\'id_str\')\n\t\t\t\tif retweeter == None:\n\t\t\t\t\tretweeter = str(tweet.get(\'user\').get(\'id\'))\n\t\t\t\tretweeted = tweet.get(\'retweeted_status\').get(\'user\').get(\'id_str\')\n\t\t\t\tif retweeted == None:\n\t\t\t\t\tretweeted = str(tweet.get(\'retweeted_status\').get(\'user\').get(\'id\'))\n\t\t\t\ttimestamp = tweet.get(\'timestamp_ms\')\n\t\t\t\tif timestamp == None:\n\t\t\t\t\ttimestamp = tweet.get(\'timestamp\')\n\t\t\t\tedge = (retweeter,\n\t\t\t\t\tretweeted,\n\t\t\t\t\ttimestamp)\n\t\t\t\treturn(edge)\n\t\treturn None', '')
+	if hashtags == None or hashtags == []:
+		parse_retweet_source = parse_retweet_source.replace('\n\t\ttags = tweet.get(\'retweeted_status\').get(\'hashtags\')\n\t\tif tags == []:\n\t\t\treturn None\n\t\tif tags == None and tweet.get(\'retweeted_status\').get(\'entities\') != None:\n\t\t\ttag_objects = tweet.get(\'retweeted_status\').get(\'entities\').get(\'hashtags\')\n\t\t\tif tag_objects == None or tag_objects == []:\n\t\t\t\treturn None\n\t\t\telse:\n\t\t\t\ttags = []\n\t\t\t\tfor tag in tag_objects:\n\t\t\t\t\ttags.append(tag.get(\'text\'))\n\t\tif tags == None and tweet.get(\'retweeted_status\').get(\'entities\') == None:\n\t\t\treturn None\n\t\tfor hashtag in filters.get(\'hashtags\'):\n\t\t\tif hashtag in tags:\n\t\t\t\tretweeter = tweet.get(\'user\').get(\'id_srt\')\n\t\t\t\tif retweeter == None:\n\t\t\t\t\tretweeter = str(tweet.get(\'user\').get(\'id\'))\n\t\t\t\tretweeted = tweet.get(\'retweeted_status\').get(\'user\').get(\'id_str\')\n\t\t\t\tif retweeted == None:\n\t\t\t\t\tretweeted = str(tweet.get(\'retweeted_status\').get(\'user\').get(\'id\'))\n\t\t\t\ttimestamp = tweet.get(\'timestamp_ms\')\n\t\t\t\tif timestamp == None:\n\t\t\t\t\ttimestamp = tweet.get(\'timestamp\')\n\t\t\t\tedge = (retweeter,\n\t\t\t\t\tretweeted,\n\t\t\t\t\ttimestamp)\n\t\t\t\treturn(edge)\n\t\treturn None', '')
 	return(parse_retweet_source)
 
 
@@ -124,6 +155,7 @@ def make_network(folder,
 	retweets : logical of whether to include retweets in the network.
 	mentions : logical of whether to include mentions in the network.
 	keywords : list of all substrings to be matched; or else no filtering.
+	hashtags : list of all hashtags to be matched; or else no filtering.
 	senders_rt : list of retweeting accounts; or else all accounts included.
 	receivers_rt : list of retweeted accounts; or else all accounts included.
 	union_rt : logical of whether senders_rt and receivers_rt form a union or
@@ -134,8 +166,8 @@ def make_network(folder,
 	languages : list of languages to include; or else all languages included.
 	Returns
 	-------
-	list of edges or
-	a dict where keys are tuples of linked accounts
+	list of edges, or
+	a dictionary where keys are tuples of linked accounts and tweet timestamp.
 	"""
 	edges = []
 	dictionary = {}
@@ -152,7 +184,8 @@ def make_network(folder,
 								filters.get('senders_rt'),
 								filters.get('receivers_rt'),
 								filters.get('union_rt'),
-								filters.get('languages'))
+								filters.get('languages'),
+								filters.get('hashtags'))
 		exec(new_retweet_parser, globals())
 	if filters.get('mentions'):
 		pass
