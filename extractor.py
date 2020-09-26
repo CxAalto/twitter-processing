@@ -171,7 +171,7 @@ def make_network(folder,
 	"""
 	edges = []
 	dictionary = {}
-	files = sorted([file for file in os.listdir(folder) if not file.startswith('.')])
+	files = sorted([file for file in os.listdir(folder) if os.path.isfile(os.path.join(folder, file))])
 	# Filter by date:
 	dates = filters.get('dates')
 	if dates != None and dates != []:
