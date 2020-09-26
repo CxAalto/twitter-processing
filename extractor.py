@@ -44,8 +44,7 @@ def parse_retweet(tweet, **filters):
 			return None
 		if tweet['retweeted_status']['lang'] not in filters.get('languages'):
 			return None
-		if 'truncated' in tweet['retweeted_status'] and \
-		   not tweet['retweeted_status']['truncated']:
+		if tweet.get('retweeted_status').get('truncated') == True:
 			text = tweet['retweeted_status']['extended_tweet']['full_text'].lower()
 		else:
 			text = tweet['retweeted_status']['text'].lower()
