@@ -199,16 +199,19 @@ def make_network(folder,
 	for file in files:
 		with open(os.path.join(folder, file), 'r', encoding = 'utf-8') as infile:
 			for line in infile:
-				contents = json.loads(line)
-				parsed_rt = None
-				if filters.get('retweets'):
-					if tweet_per_line:
-						filter_tweet_to_collection(contents, **filters)
-					else:
-						for tweet_json in contents:
-							filter_tweet_to_collection(tweet_json, **filters)
-				if filters.get('mentions'):
-					pass # For now does not parse mentions
+				try:
+					contents = json.loads(line)
+					parsed_rt = None
+					if filters.get('retweets'):
+						if tweet_per_line:
+							filter_tweet_to_collection(contents, **filters)
+						else:
+							for tweet_json in contents:
+								filter_tweet_to_collection(tweet_json, **filters)
+					if filters.get('mentions'):
+						pass # For now does not parse mentions
+				except json.decoder.JSONDecodeError:
+					print(line)
 	if output == "edges":
 		# Removing duplicated edges
 		# (currently does not differentiate between retweets and mentions)
